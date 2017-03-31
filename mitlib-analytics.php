@@ -36,18 +36,126 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Registers function to output analytics.
+ * Creates plugin options and settings
  */
-function mitlib_analytics() {
+function mitlib_analytics_init() {
+	// Register a new setting for the GA property.
+	register_setting( 'mitlib_analytics', 'mitlib_ga_property' );
+
+	// Register a new section on the mitlib-analytics page.
+	add_settings_section(
+		'mitlib_analytics_general',
+		__( 'General settings', 'mitlib_analytics' ),
+		'mitlib\mitlib_analytics_section',
+		'mitlib-analytics'
+	);
+
+	// Register a new field in the "mitlib_analytics_general" section, inside the "mitlib-analytics" page.
+	add_settings_field(
+		'mitlib_ga_property',
+		__( 'Google Analytics Property', 'mitlib_analytics' ),
+		'mitlib\mitlib_analytics_field_cb',
+		'mitlib-analytics',
+		'mitlib_analytics_general',
+		array(
+			'label_for' => 'mitlib_ga_property',
+			'class' => 'mitlib_analytics_row',
+		)
+	);
+	add_settings_field(
+		'mitlib_ga_property',
+		__( 'Google Analytics Property', 'mitlib_analytics' ),
+		'mitlib\mitlib_analytics_field_cb',
+		'mitlib-analytics',
+		'mitlib_analytics_general',
+		array(
+			'label_for' => 'mitlib_ga_property',
+			'class' => 'mitlib_analytics_row',
+		)
+	);
+}
+add_action( 'admin_init', 'mitlib\mitlib_analytics_init' );
+
+/**
+ * Create options page
+ */
+function mitlib_analytics_settings() {
+	add_options_page(
+		'MITlib Analytics Options',
+		'MITlib Analytics',
+		'manage_options',
+		'mitlib-analytics',
+		'mitlib\mitlib_analytics_page_html'
+	);
+}
+add_action( 'admin_menu', 'mitlib\mitlib_analytics_settings' );
+
+/**
+ * Section rendering callback
+ */
+function mitlib_analytics_section() {
+	?>
+	<p>These settings allow Google Analytics to work correctly for this server.</p>
+	<?php
+}
+
+/**
+ * Field rendering callback
+ */
+function mitlib_analytics_field_cb() {
+	// Get the settings value.
+	$options = get_option( 'mitlib_ga_property' );
+	?>
+	<input
+		type="text"
+		name="<?php echo esc_attr( 'mitlib_ga_property' ); ?>"
+		value="<?php echo esc_attr( $options ); ?>"
+		id="<?php echo esc_attr( 'mitlib_ga_property' ); ?>"
+		size="20">
+	<p>If you aren't sure what value to use, please contact UX/Web Services.</p>
+	<?php
+}
+
+/**
+ * Options page for settings form
+ */
+function mitlib_analytics_page_html() {
+	// Check user capabilities.
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	// Build the form.
+	?>
+	<div class="wrap">
+		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+		<form method="post" action="options.php">
+			<?php
+			// Output security fields for this form.
+			settings_fields( 'mitlib_analytics' );
+			// Output settings sections and their fields.
+			do_settings_sections( 'mitlib-analytics' );
+			// Output the form submit button.
+			submit_button( 'Save Settings' );
+			?>
+		</form>
+	</div>
+	<?php
+}
+
+/**
+ * View function that outputs the GA code on public pages.
+ */
+function mitlib_analytics_view() {
 	echo "<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  ga('create', 'UA-1760176-1',  'auto', {'allowLinker': true});
-  ga('require', 'linker');
-  ga('linker:autoLink', ['libguides.mit.edu', 'libcal.mit.edu', 'libanswers.mit.edu'] );
-  ga('send', 'pageview');
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+	ga('create', '" . esc_html( get_option( 'mitlib_ga_property' ) ) . "',  'auto', {'allowLinker': true});
+	ga('require', 'linker');
+	ga('linker:autoLink', ['libguides.mit.edu', 'libcal.mit.edu', 'libanswers.mit.edu'] );
+	ga('send', 'pageview');
 </script>";
 }
-add_action( 'wp_footer', 'mitlib\mitlib_analytics' );
+add_action( 'wp_footer', 'mitlib\mitlib_analytics_view' );
