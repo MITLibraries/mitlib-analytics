@@ -1,0 +1,21 @@
+*.
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.DS_Store
+
+pids
+logs
+results
+_notes
+
+# local CodeSniffer check
+codesniffer.local.xml
+
+# Sublime workspace
+*.sublime-workspace
