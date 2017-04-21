@@ -62,17 +62,6 @@ function mitlib_analytics_init() {
 			'class' => 'mitlib_analytics_row',
 		)
 	);
-	add_settings_field(
-		'mitlib_ga_property',
-		__( 'Google Analytics Property', 'mitlib_analytics' ),
-		'mitlib\mitlib_analytics_field_cb',
-		'mitlib-analytics',
-		'mitlib_analytics_general',
-		array(
-			'label_for' => 'mitlib_ga_property',
-			'class' => 'mitlib_analytics_row',
-		)
-	);
 }
 add_action( 'admin_init', 'mitlib\mitlib_analytics_init' );
 
