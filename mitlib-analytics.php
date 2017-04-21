@@ -3,7 +3,7 @@
  * Plugin Name: MITlib Analytics
  * Plugin URI: https://github.com/MITLibraries/mitlib-analytics
  * Description: This plugin provides a thin implementation of Google Analytics tracking for use across domains.
- * Version: 0.1.0
+ * Version: 0.2.0
  * Author: Matt Bernhardt for MIT Libraries
  * Author URI: https://github.com/MITLibraries
  * License: GPL2
@@ -41,6 +41,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function mitlib_analytics_init() {
 	// Register a new setting for the GA property.
 	register_setting( 'mitlib_analytics', 'mitlib_ga_property' );
+	register_setting( 'mitlib_analytics', 'mitlib_ga_domains' );
 
 	// Register a new section on the mitlib-analytics page.
 	add_settings_section(
@@ -54,11 +55,24 @@ function mitlib_analytics_init() {
 	add_settings_field(
 		'mitlib_ga_property',
 		__( 'Google Analytics Property', 'mitlib_analytics' ),
-		'mitlib\mitlib_analytics_field_cb',
+		'mitlib\mitlib_analytics_property_callback',
 		'mitlib-analytics',
 		'mitlib_analytics_general',
 		array(
 			'label_for' => 'mitlib_ga_property',
+			'class' => 'mitlib_analytics_row',
+		)
+	);
+
+	// Register the domain list field in the "mitlib_analytics_general" section, inside the "mitlib-analytics" page.
+	add_settings_field(
+		'mitlib_ga_domains',
+		__( 'Linked Domains', 'mitlib_analytics' ),
+		'mitlib\mitlib_analytics_domain_callback',
+		'mitlib-analytics',
+		'mitlib_analytics_general',
+		array(
+			'label_for' => 'mitlib_ga_domains',
 			'class' => 'mitlib_analytics_row',
 		)
 	);
@@ -89,9 +103,9 @@ function mitlib_analytics_section() {
 }
 
 /**
- * Field rendering callback
+ * Field rendering callback: GA Property
  */
-function mitlib_analytics_field_cb() {
+function mitlib_analytics_property_callback() {
 	// Get the settings value.
 	$options = get_option( 'mitlib_ga_property' );
 	?>
@@ -102,6 +116,32 @@ function mitlib_analytics_field_cb() {
 		id="<?php echo esc_attr( 'mitlib_ga_property' ); ?>"
 		size="20">
 	<p>If you aren't sure what value to use, please contact UX/Web Services.</p>
+	<?php
+}
+
+/**
+ * Field rendering callback: Domain list
+ */
+function mitlib_analytics_domain_callback() {
+	// Get the settings value.
+	$options = get_option( 'mitlib_ga_domains' );
+	?>
+	<input
+		type="text"
+		name="<?php echo esc_attr( 'mitlib_ga_domains' ); ?>"
+		value="<?php echo esc_attr( $options ); ?>"
+		id="<?php echo esc_attr( 'mitlib_ga_domains' ); ?>"
+		size="60">
+	<p>This should be the comma-separated list of domains that report together.</p>
+	<p>Read more about
+		<a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/cross-domain">
+			cross-domain tracking
+		</a>
+		and
+		<a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/linker">
+			the linker plugin
+		</a>.
+	</p>
 	<?php
 }
 
@@ -136,6 +176,7 @@ function mitlib_analytics_page_html() {
  * View function that outputs the GA code on public pages.
  */
 function mitlib_analytics_view() {
+	$domains = explode( ',', get_option( 'mitlib_ga_domains' ) );
 	echo "<script>
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -143,7 +184,11 @@ function mitlib_analytics_view() {
 	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 	ga('create', '" . esc_html( get_option( 'mitlib_ga_property' ) ) . "',  'auto', {'allowLinker': true});
 	ga('require', 'linker');
-	ga('linker:autoLink', ['libguides.mit.edu', 'libcal.mit.edu', 'libanswers.mit.edu'] );
+	ga('linker:autoLink', [";
+	foreach ( $domains as &$item ) {
+		echo "'" . esc_attr( trim( $item ) ) . "',";
+	}
+	echo "]);
 	ga('send', 'pageview');
 </script>";
 }
