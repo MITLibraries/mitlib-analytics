@@ -36,6 +36,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Edit the action links that appear in installed plugins list page
+ *
+ * @param array $links Array of links to display below our plugin listing.
+ * @return array Amended array of links.
+ */
+function mitlib_analytics_action_links( $links ) {
+	// Add our custom links to the returned array value.
+	return array_merge( array(
+		'<a href="' . admin_url( 'options-general.php?page=mitlib-analytics' ) . '">'
+		. __( 'Settings', 'mitlib_analytics' ) . '</a>',
+	), $links );
+}
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'mitlib\mitlib_analytics_action_links' );
+
+/**
  * Creates plugin options and settings
  */
 function mitlib_analytics_init() {
