@@ -36,21 +36,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Edit the action links that appear in installed plugins list page
- *
- * @param array $links Array of links to display below our plugin listing.
- * @return array Amended array of links.
- */
-function mitlib_analytics_action_links( $links ) {
-	// Add our custom links to the returned array value.
-	return array_merge( array(
-		'<a href="' . admin_url( 'options-general.php?page=mitlib-analytics' ) . '">'
-		. __( 'Settings', 'mitlib_analytics' ) . '</a>',
-	), $links );
-}
-add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'mitlib\mitlib_analytics_action_links' );
-
-/**
  * Creates plugin options and settings
  */
 function mitlib_analytics_init() {
@@ -95,10 +80,10 @@ function mitlib_analytics_init() {
 add_action( 'admin_init', 'mitlib\mitlib_analytics_init' );
 
 /**
- * Create options page
+ * Create network admin settings page
  */
-function mitlib_analytics_settings() {
-	add_options_page(
+function mitlib_analytics_menu() {
+	add_menu_page(
 		'MITlib Analytics Options',
 		'MITlib Analytics',
 		'manage_options',
@@ -106,7 +91,7 @@ function mitlib_analytics_settings() {
 		'mitlib\mitlib_analytics_page_html'
 	);
 }
-add_action( 'admin_menu', 'mitlib\mitlib_analytics_settings' );
+add_action( 'network_admin_menu', 'mitlib\mitlib_analytics_menu' );
 
 /**
  * Section rendering callback
@@ -173,7 +158,7 @@ function mitlib_analytics_page_html() {
 	?>
 	<div class="wrap">
 		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-		<form method="post" action="options.php">
+		<form method="post" action="../options.php">
 			<?php
 			// Output security fields for this form.
 			settings_fields( 'mitlib_analytics' );
@@ -205,6 +190,6 @@ function mitlib_analytics_view() {
 	}
 	echo "]);
 	ga('send', 'pageview');
-</script>";
+	</script>";
 }
 add_action( 'wp_footer', 'mitlib\mitlib_analytics_view' );
