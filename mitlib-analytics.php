@@ -42,19 +42,28 @@ function mitlib_analytics_init() {
 	// Register a new setting for the GA property.
 	register_setting( 'mitlib_analytics', 'mitlib_ga_property' );
 	register_setting( 'mitlib_analytics', 'mitlib_ga_domains' );
+	register_setting( 'mitlib_analytics', 'mitlib_mit_property' );
 
-	// Register a new section on the mitlib-analytics page.
+	// Register a section for libraries settings on the mitlib-analytics page.
 	add_settings_section(
 		'mitlib_analytics_general',
-		__( 'General settings', 'mitlib_analytics' ),
-		'mitlib\mitlib_analytics_section',
+		__( 'Libraries settings', 'mitlib_analytics' ),
+		'mitlib\mitlib_analytics_section_libraries',
+		'mitlib-analytics'
+	);
+
+	// Register a section for MIT settings on the mitlib-analytics page.
+	add_settings_section(
+		'mitlib_analytics_mit',
+		__( 'MIT settings', 'mitlib_analytics' ),
+		'mitlib\mitlib_analytics_section_mit',
 		'mitlib-analytics'
 	);
 
 	// Register a new field in the "mitlib_analytics_general" section, inside the "mitlib-analytics" page.
 	add_settings_field(
 		'mitlib_ga_property',
-		__( 'Google Analytics Property', 'mitlib_analytics' ),
+		__( 'Libraries Analytics Property', 'mitlib_analytics' ),
 		'mitlib\mitlib_analytics_property_callback',
 		'mitlib-analytics',
 		'mitlib_analytics_general',
@@ -73,6 +82,19 @@ function mitlib_analytics_init() {
 		'mitlib_analytics_general',
 		array(
 			'label_for' => 'mitlib_ga_domains',
+			'class' => 'mitlib_analytics_row',
+		)
+	);
+
+	// Register a new field in the "mitlib_analytics_mit" section, inside the "mitlib-analytics" page.
+	add_settings_field(
+		'mitlib_mit_property',
+		__( 'MIT Analytics Property', 'mitlib_analytics' ),
+		'mitlib\mitlib_analytics_mit_property_callback',
+		'mitlib-analytics',
+		'mitlib_analytics_mit',
+		array(
+			'label_for' => 'mitlib_mit_property',
 			'class' => 'mitlib_analytics_row',
 		)
 	);
@@ -96,14 +118,23 @@ add_action( 'network_admin_menu', 'mitlib\mitlib_analytics_menu' );
 /**
  * Section rendering callback
  */
-function mitlib_analytics_section() {
+function mitlib_analytics_section_libraries() {
 	?>
-	<p>These settings allow Google Analytics to work correctly for this server.</p>
+	<p>These settings control the Libraries-level analytics information.</p>
 	<?php
 }
 
 /**
- * Field rendering callback: GA Property
+ * Section rendering callback
+ */
+function mitlib_analytics_section_mit() {
+	?>
+	<p>This controls whether the MIT-level property is used on this site.</p>
+	<?php
+}
+
+/**
+ * Field rendering callback: Libraries GA Property
  */
 function mitlib_analytics_property_callback() {
 	// Get the settings value.
@@ -146,6 +177,23 @@ function mitlib_analytics_domain_callback() {
 }
 
 /**
+ * Field rendering callback: MIT GA Property
+ */
+function mitlib_analytics_mit_property_callback() {
+	// Get the settings value.
+	$options = get_option( 'mitlib_mit_property' );
+	?>
+	<input
+		type="text"
+		name="<?php echo esc_attr( 'mitlib_mit_property' ); ?>"
+		value="<?php echo esc_attr( $options ); ?>"
+		id="<?php echo esc_attr( 'mitlib_mit_property' ); ?>"
+		size="20">
+	<p>If you aren't sure what value to use, please contact UX/Web Services.</p>
+	<?php
+}
+
+/**
  * Options page for settings form
  */
 function mitlib_analytics_page_html() {
@@ -177,6 +225,7 @@ function mitlib_analytics_page_html() {
  */
 function mitlib_analytics_view() {
 	$domains = explode( ',', get_option( 'mitlib_ga_domains' ) );
+	$mit = get_option( 'mitlib_mit_property' );
 	echo "<script>
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -188,8 +237,12 @@ function mitlib_analytics_view() {
 	foreach ( $domains as &$item ) {
 		echo "'" . esc_attr( trim( $item ) ) . "',";
 	}
-	echo "]);
-	ga('send', 'pageview');
-	</script>";
+	echo "]);\n";
+	if ( $mit ) {
+		echo "ga('create', '" . esc_html( $mit ) . "', {'name':'mitsitewide'});
+		ga('mitsitewide.send','pageview');\n";
+	}
+	echo "ga('send', 'pageview');
+	</script>\n";
 }
 add_action( 'wp_footer', 'mitlib\mitlib_analytics_view' );
