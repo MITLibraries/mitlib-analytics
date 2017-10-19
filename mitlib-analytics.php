@@ -265,6 +265,7 @@ function mitlib_analytics_page_html() {
 function mitlib_analytics_view() {
 	$domains = explode( ',', get_site_option( 'mitlib_ga_domains' ) );
 	$mit = get_site_option( 'mitlib_mit_property' );
+	echo "<script type='text/javascript' src='" . plugins_url( 'uri.js', __FILE__ ) . "'></script>";
 	echo "<script>
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -282,6 +283,11 @@ function mitlib_analytics_view() {
 		ga('mitsitewide.send','pageview');\n";
 	}
 	echo "ga('send', 'pageview');
+
+	jQuery(window).load(function() {
+		url = URI(window.location.href).removeSearch(\"_ga\");
+		history.replaceState(\"state\", \"\", url);
+	});
 	</script>\n";
 }
 add_action( 'wp_footer', 'mitlib\mitlib_analytics_view' );
