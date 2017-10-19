@@ -3,7 +3,7 @@
  * Plugin Name: MITlib Analytics
  * Plugin URI: https://github.com/MITLibraries/mitlib-analytics
  * Description: This plugin provides a thin implementation of Google Analytics tracking for use across domains.
- * Version: 1.0.1
+ * Version: 1.1.0
  * Author: Matt Bernhardt for MIT Libraries
  * Author URI: https://github.com/MITLibraries
  * License: GPL2
@@ -265,7 +265,8 @@ function mitlib_analytics_page_html() {
 function mitlib_analytics_view() {
 	$domains = explode( ',', get_site_option( 'mitlib_ga_domains' ) );
 	$mit = get_site_option( 'mitlib_mit_property' );
-	echo "<script type='text/javascript' src='" . plugins_url( 'uri.js', __FILE__ ) . "'></script>";
+	wp_register_script( 'uri', plugins_url( 'uri.js', __FILE__ ), array(), '1.1.0', false );
+	wp_enqueue_script( 'uri' );
 	echo "<script>
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
