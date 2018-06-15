@@ -4,15 +4,18 @@
 # For use with the MIT Libraries' analytics plugin.
 # @link https://github.com/MITLibraries/mitlib-analytics
 
+# Declare what Travis environment should be used. Specifically, we need the
+# 'precise' environment rather than 'trusty' to get PHP 5.3.
+dist: precise
+
 # Declare project language.
 # @link http://about.travis-ci.org/docs/user/languages/php/
 language: php
 
 # Declare versions of PHP to use. Use one decimal max.
 php:
-php:
   # aliased to a recent 7.1.x version
-  - "7.1"
+  - "7.2"
   # aliased to a recent 5.6.x version
   - "5.6"
   # aliased to a recent 5.3.x version
@@ -25,17 +28,17 @@ env:
   # @link https://github.com/WordPress/WordPress
   # WP_VERSION=master WP_MULTISITE=0
   - WP_VERSION=master WP_MULTISITE=1
-  # WordPress 4.7
-  # @link https://github.com/WordPress/WordPress/tree/4.7-branch
-  # WP_VERSION=4.7 WP_MULTISITE=0
-  - WP_VERSION=4.7 WP_MULTISITE=1
+  # WordPress 4.9
+  # @link https://github.com/WordPress/WordPress/tree/4.9-branch
+  # WP_VERSION=4.9 WP_MULTISITE=0
+  - WP_VERSION=4.9 WP_MULTISITE=1
 
 # Declare "future" releases to be acceptable failures.
 # @link https://buddypress.trac.wordpress.org/ticket/5620
 # @link http://docs.travis-ci.com/user/build-configuration/
 matrix:
   allow_failures:
-    - php: "7.1"
+    - php: "7.2"
     - php: "5.6"
     - env: WP_VERSION=master WP_MULTISITE=1
   fast_finish: true
