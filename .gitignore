@@ -19,3 +19,5 @@ codesniffer.local.xml
 
 # Sublime workspace
 *.sublime-workspace
+
+/vendor/
