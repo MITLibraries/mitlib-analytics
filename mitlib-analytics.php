@@ -3,7 +3,7 @@
  * Plugin Name: MITlib Analytics
  * Plugin URI: https://github.com/MITLibraries/mitlib-analytics
  * Description: This plugin provides a thin implementation of Google Analytics tracking for use across domains.
- * Version: 1.1.0-beta2
+ * Version: 1.1.0-beta3
  * Author: Matt Bernhardt for MIT Libraries
  * Author URI: https://github.com/MITLibraries
  * License: GPL2
@@ -114,6 +114,20 @@ function mitlib_analytics_menu() {
 	);
 }
 add_action( 'network_admin_menu', 'mitlib\mitlib_analytics_menu' );
+
+/**
+ * Create settings page
+ */
+function mitlib_analytics_settings() {
+	add_options_page(
+		'MIT Libraries Analytics',
+		'MITlib Analytics',
+		'manage_options',
+		'mitlib-analytics',
+		'mitlib\mitlib_analytics_page_html'
+	);
+}
+add_action( 'admin_menu', 'mitlib\mitlib_analytics_settings' );
 
 /**
  * Section rendering callback
