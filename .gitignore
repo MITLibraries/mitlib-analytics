@@ -14,8 +14,7 @@ logs
 results
 _notes
 
-# local CodeSniffer check
-codesniffer.local.xml
-
 # Sublime workspace
 *.sublime-workspace
+
+/vendor/
